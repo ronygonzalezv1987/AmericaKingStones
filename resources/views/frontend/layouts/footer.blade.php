@@ -9,7 +9,7 @@
                             <div class="row"><h5>Contact</h5></div>
                             <div class="row"><span>Call: <a href="#">305.815.1513</a></span></div>
                             <div class="row"><span>Fax: <a href="#">866.223.2696</a></span></div>
-                            <div class="row"><span>Email: <a href="ronygonzalezv1987@gmail.com" target="_top">ronygonzalezv1987@gmail.com</a></span></div>
+                            <div class="row"><span>Email: <a href="rony@americakingstones.com" target="_top">ronygonzalezv1987@gmail.com</a></span></div>
                             <div class="row"><a href="#">3420 Olive Rd<br> Louisville, KY 40219</a></div>
                         </div>
                         <div class="col-md-6 col-lg-3 tablet">

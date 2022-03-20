@@ -41,9 +41,13 @@ RUN apk update && apk add \
 
 RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && \
-    docker-php-ext-install gd  
-    
-RUN composer install && yarn install
+    docker-php-ext-install gd 
+#Install Redis Extention
+RUN apk add autoconf && pecl install -o -f redis \
+&& rm -rf /tmp/pear \
+&& docker-php-ext-enable redis && apk del autoconf
+
+#RUN composer install && yarn install
 COPY ./config/php/local.ini  /usr/local/etc/php/conf.d/local.ini
 
 RUN addgroup -g 1000 -S www && \

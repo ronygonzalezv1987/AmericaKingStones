@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <meta name="yandex-verification"  content="a30abb9b4987e089"> 
 
     <title><?php echo e(isset($title) ? $title : 'AmericaKingStones'); ?></title>
     <meta name="description"
