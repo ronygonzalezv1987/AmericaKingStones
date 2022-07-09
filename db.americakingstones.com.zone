@@ -1,0 +1,14 @@
+;; BIND forward data file for zone americakingstones.com
+
+$TTL                  86400   ; time-to-live - 24 hours could have been written as 24h or 1d
+
+@                     IN      SOA         americakingstones.com  root.americakingstones.com. (
+                                                      2                   ; Serial - (NOTE: Needs to increment every time you restart BIND)
+                                                     604800               ; Refresh
+                                                     86400                ; Retry
+                                                   2419200                ; Expire
+                                                    604800 )              ; Default TTL
+;                     
+@                      IN            NS           americakingstones.com.   ;serve
+@                      IN            A            172.24.76.97           ;18.189.79.12              ; loop-back address
+www                    IN            CNAME        americakingstones.com.
