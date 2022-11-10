@@ -1,0 +1,18 @@
+FROM nginx:alpine
+RUN apk update && apk add \
+    vim \
+    unzip \
+    curl \
+    openssl
+#COPY ./config/nginx/conf.d/app.conf /etc/nginx/conf.d/app.conf
+COPY . /var/www
+#RUN chown -R 405 /etc/nginx/
+#RUN openssl genrsa -out /etc/nginx/certs/default.key 4096
+#RUN openssl rsa -in /etc/nginx/certs/default.key -pubout -out /etc/nginx/certs/default_public.key
+#RUN openssl req  -new -key  /etc/nginx/certs/default.key -out /etc/nginx/certs/default.csr  -subj "/C=US/ST=Kentucky/L=Louisville/O=America King Stones/CN=americakingstones.com"
+  # openssl req -text -in /etc/nginx/certs/default.crt -noout -verify "Verifica si se creo el archivo"
+#RUN  openssl x509 -in /etc/nginx/certs/default.csr -out /etc/nginx/certs/default.crt -req -signkey /etc/nginx/certs/default.key -days 365
+
+#RUN openssl req -x509 -new -nodes -newkey rsa:4096 -keyout /etc/nginx/certs/default.key\
+ #  -out /etc/nginx/certs/default.crt -days 365 -subj "/C=US/ST=Kentucky/L=Louisville/O=America King Stones/CN=americakingstones.com"
+

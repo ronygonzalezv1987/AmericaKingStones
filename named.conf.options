@@ -1,0 +1,9 @@
+options {
+     listen-on { any; };
+     allow-query { localhost; 10.10.20.0/24; };
+    forwarders {
+            8.8.8.8;
+            8.8.4.4;
+    };
+    dnssec-validation no ;
+};

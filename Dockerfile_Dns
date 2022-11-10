@@ -1,0 +1,33 @@
+FROM ubuntu:focal
+
+RUN apt-get update \
+  && apt-get install -y \
+  bind9 \
+  bind9utils \
+  bind9-doc \
+  vim \
+  curl \
+  dnsutils\
+  sed\
+  iptables\
+  ufw\
+  sudo\
+  systemd
+#Allow write at this adress 
+RUN chown -R 405 /etc/bind/
+ 
+# Enable IPv4
+RUN sed -i 's/OPTIONS=.*/OPTIONS=" -u bind -4"/' /etc/default/named 
+
+# Copy configuration files
+COPY named.conf.options /etc/bind/
+COPY named.conf.local /etc/bind/
+COPY db.americakingstones.com.zone /etc/bind/zones/
+   
+#Never Work...
+#COPY entrypoint.sh /entrypoint.sh
+#RUN chmod +x /entrypoint.sh
+#ENTRYPOINT ["/entrypoint.sh"]
+
+# Run eternal loop
+CMD ["/bin/bash", "-c", " sudo ufw enable && sudo ufw default deny && sudo iptables -L && sudo ufw enable && sudo ufw status && while :; do sleep 10; done"]
