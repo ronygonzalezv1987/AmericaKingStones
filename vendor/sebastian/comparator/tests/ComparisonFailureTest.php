@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of sebastian/comparator.
  *
@@ -9,13 +9,13 @@
  */
 namespace SebastianBergmann\Comparator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \SebastianBergmann\Comparator\ComparisonFailure
- *
- * @uses \SebastianBergmann\Comparator\Factory
- */
+#[CoversClass(ComparisonFailure::class)]
+#[UsesClass(Comparator::class)]
+#[UsesClass(Factory::class)]
 final class ComparisonFailureTest extends TestCase
 {
     public function testComparisonFailure(): void
@@ -29,7 +29,6 @@ final class ComparisonFailureTest extends TestCase
             $actual,
             '|' . $expected,
             '|' . $actual,
-            false,
             $message
         );
 
@@ -52,7 +51,7 @@ final class ComparisonFailureTest extends TestCase
 
     public function testDiffNotPossible(): void
     {
-        $failure = new ComparisonFailure('a', 'b', false, false, true, 'test');
+        $failure = new ComparisonFailure('a', 'b', '', '', 'test');
         $this->assertSame('', $failure->getDiff());
         $this->assertSame('test', $failure->toString());
     }

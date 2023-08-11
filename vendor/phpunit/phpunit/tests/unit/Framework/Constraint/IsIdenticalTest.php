@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -9,109 +9,67 @@
  */
 namespace PHPUnit\Framework\Constraint;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\ExpectationFailedException;
-use PHPUnit\Framework\TestFailure;
+use PHPUnit\Framework\TestCase;
+use stdClass;
 
-class IsIdenticalTest extends ConstraintTestCase
+#[CoversClass(IsIdentical::class)]
+#[CoversClass(Constraint::class)]
+#[Small]
+final class IsIdenticalTest extends TestCase
 {
-    public function testConstraintIsIdentical(): void
+    public static function provider(): array
     {
-        $a = new \stdClass;
-        $b = new \stdClass;
+        return [
+            [
+                'is identical to 0',
+                'Failed asserting that 1 is identical to 0.',
+                '',
+                0,
+                1,
+            ],
 
-        $constraint = new IsIdentical($a);
+            [
+                'is identical to an object of class "stdClass"',
+                'Failed asserting that two variables reference the same object.',
+                '',
+                new stdClass,
+                new stdClass,
+            ],
 
-        $this->assertFalse($constraint->evaluate($b, '', true));
-        $this->assertTrue($constraint->evaluate($a, '', true));
-        $this->assertEquals('is identical to an object of class "stdClass"', $constraint->toString());
-        $this->assertCount(1, $constraint);
+            [
+                'is identical to \'expected\'',
+                'Failed asserting that two strings are identical.',
+                <<<'EOT'
 
-        try {
-            $constraint->evaluate($b);
-        } catch (ExpectationFailedException $e) {
-            $this->assertEquals(
-                <<<EOF
-Failed asserting that two variables reference the same object.
-
-EOF
-                ,
-                TestFailure::exceptionToString($e)
-            );
-
-            return;
-        }
-
-        $this->fail();
-    }
-
-    public function testConstraintIsIdentical2(): void
-    {
-        $a = new \stdClass;
-        $b = new \stdClass;
-
-        $constraint = new IsIdentical($a);
-
-        try {
-            $constraint->evaluate($b, 'custom message');
-        } catch (ExpectationFailedException $e) {
-            $this->assertEquals(
-                <<<EOF
-custom message
-Failed asserting that two variables reference the same object.
-
-EOF
-                ,
-                TestFailure::exceptionToString($e)
-            );
-
-            return;
-        }
-
-        $this->fail();
-    }
-
-    public function testConstraintIsIdentical3(): void
-    {
-        $constraint = new IsIdentical('a');
-
-        try {
-            $constraint->evaluate('b', 'custom message');
-        } catch (ExpectationFailedException $e) {
-            $this->assertEquals(
-                <<<EOF
-custom message
-Failed asserting that two strings are identical.
 --- Expected
 +++ Actual
 @@ @@
--'a'
-+'b'
+-'expected'
++'actual'
 
-EOF
-                ,
-                TestFailure::exceptionToString($e)
-            );
+EOT,
+                'expected',
+                'actual',
+            ],
 
-            return;
-        }
+            [
+                <<<'EOT'
+is identical to Array &0 (
+    0 => 1
+    1 => 2
+    2 => 3
+    3 => 4
+    4 => 5
+    5 => 6
+)
+EOT,
+                'Failed asserting that two arrays are identical.',
+                <<<'EOT'
 
-        $this->fail();
-    }
-
-    public function testConstraintIsIdenticalArrayDiff(): void
-    {
-        $expected = [1, 2, 3, 4, 5, 6];
-        $actual   = [1, 2, 33, 4, 5, 6];
-
-        $constraint = new IsIdentical($expected);
-
-        try {
-            $constraint->evaluate($actual, 'custom message');
-        } catch (ExpectationFailedException $e) {
-            $this->assertSame(
-                <<<EOF
-custom message
-Failed asserting that two arrays are identical.
 --- Expected
 +++ Actual
 @@ @@
@@ -125,47 +83,28 @@ Failed asserting that two arrays are identical.
      5 => 6
  )
 
-EOF
-                ,
-                TestFailure::exceptionToString($e)
-            );
-
-            return;
-        }
-
-        $this->fail();
-    }
-
-    public function testConstraintIsIdenticalNestedArrayDiff(): void
-    {
-        $expected = [
-            ['A' => 'B'],
-            [
-                'C' => [
-                    'D',
-                    'E',
-                ],
+EOT,
+                [1, 2, 3, 4, 5, 6],
+                [1, 2, 33, 4, 5, 6],
             ],
-        ];
-        $actual = [
-            ['A' => 'C'],
-            [
-                'C' => [
-                    'C',
-                    'E',
-                    'F',
-                ],
-            ],
-        ];
-        $constraint = new IsIdentical($expected);
 
-        try {
-            $constraint->evaluate($actual, 'custom message');
-        } catch (ExpectationFailedException $e) {
-            $this->assertEquals(
-                <<<EOF
-custom message
-Failed asserting that two arrays are identical.
+            [
+                <<<'EOT'
+is identical to Array &0 (
+    0 => Array &1 (
+        'A' => 'B'
+    )
+    1 => Array &2 (
+        'C' => Array &3 (
+            0 => 'D'
+            1 => 'E'
+        )
+    )
+)
+EOT,
+                'Failed asserting that two arrays are identical.',
+                <<<'EOT'
+
 --- Expected
 +++ Actual
 @@ @@
@@ -184,14 +123,60 @@ Failed asserting that two arrays are identical.
      )
  )
 
-EOF
-                ,
-                TestFailure::exceptionToString($e)
-            );
+EOT,
+                [
+                    ['A' => 'B'],
+                    [
+                        'C' => [
+                            'D',
+                            'E',
+                        ],
+                    ],
+                ],
+                [
+                    ['A' => 'C'],
+                    [
+                        'C' => [
+                            'C',
+                            'E',
+                            'F',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    #[DataProvider('provider')]
+    public function testCanBeEvaluated(string $constraintAsString, string $failureDescription, string $comparisonFailureAsString, mixed $expected, mixed $actual): void
+    {
+        $constraint = new IsIdentical($expected);
+
+        $this->assertTrue($constraint->evaluate($expected, returnResult: true));
+        $this->assertFalse($constraint->evaluate($actual, returnResult: true));
+
+        try {
+            $constraint->evaluate($actual);
+        } catch (ExpectationFailedException $e) {
+            $this->assertSame($failureDescription, $e->getMessage());
+            $this->assertSame($comparisonFailureAsString, $e->getComparisonFailure() ? $e->getComparisonFailure()->toString() : '');
 
             return;
         }
 
         $this->fail();
+    }
+
+    #[DataProvider('provider')]
+    public function testCanBeRepresentedAsString(string $constraintAsString, string $failureDescription, string $comparisonFailureAsString, mixed $expected, mixed $actual): void
+    {
+        $constraint = new IsIdentical($expected);
+
+        $this->assertSame($constraintAsString, $constraint->toString());
+    }
+
+    public function testIsCountable(): void
+    {
+        $this->assertCount(1, (new IsIdentical(true)));
     }
 }

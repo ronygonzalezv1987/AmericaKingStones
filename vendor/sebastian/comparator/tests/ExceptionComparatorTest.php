@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of sebastian/comparator.
  *
@@ -10,16 +10,16 @@
 namespace SebastianBergmann\Comparator;
 
 use Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
-/**
- * @covers \SebastianBergmann\Comparator\ExceptionComparator<extended>
- *
- * @uses \SebastianBergmann\Comparator\Comparator
- * @uses \SebastianBergmann\Comparator\Factory
- * @uses \SebastianBergmann\Comparator\ComparisonFailure
- */
+#[CoversClass(ExceptionComparator::class)]
+#[UsesClass(Comparator::class)]
+#[UsesClass(ComparisonFailure::class)]
+#[UsesClass(Factory::class)]
 final class ExceptionComparatorTest extends TestCase
 {
     /**
@@ -27,31 +27,25 @@ final class ExceptionComparatorTest extends TestCase
      */
     private $comparator;
 
-    protected function setUp(): void
-    {
-        $this->comparator = new ExceptionComparator;
-        $this->comparator->setFactory(new Factory);
-    }
-
-    public function acceptsSucceedsProvider()
+    public static function acceptsSucceedsProvider()
     {
         return [
             [new Exception, new Exception],
             [new RuntimeException, new RuntimeException],
-            [new Exception, new RuntimeException]
+            [new Exception, new RuntimeException],
         ];
     }
 
-    public function acceptsFailsProvider()
+    public static function acceptsFailsProvider()
     {
         return [
             [new Exception, null],
             [null, new Exception],
-            [null, null]
+            [null, null],
         ];
     }
 
-    public function assertEqualsSucceedsProvider()
+    public static function assertEqualsSucceedsProvider()
     {
         $exception1 = new Exception;
         $exception2 = new Exception;
@@ -63,11 +57,11 @@ final class ExceptionComparatorTest extends TestCase
             [$exception1, $exception1],
             [$exception1, $exception2],
             [$exception3, $exception3],
-            [$exception3, $exception4]
+            [$exception3, $exception4],
         ];
     }
 
-    public function assertEqualsFailsProvider()
+    public static function assertEqualsFailsProvider()
     {
         $typeMessage  = 'not instance of expected class';
         $equalMessage = 'Failed asserting that two objects are equal.';
@@ -84,33 +78,33 @@ final class ExceptionComparatorTest extends TestCase
             [$exception1, $exception3, $equalMessage],
             [$exception1, $exception4, $typeMessage],
             [$exception2, $exception3, $equalMessage],
-            [$exception4, $exception5, $equalMessage]
+            [$exception4, $exception5, $equalMessage],
         ];
     }
 
-    /**
-     * @dataProvider acceptsSucceedsProvider
-     */
+    protected function setUp(): void
+    {
+        $this->comparator = new ExceptionComparator;
+        $this->comparator->setFactory(new Factory);
+    }
+
+    #[DataProvider('acceptsSucceedsProvider')]
     public function testAcceptsSucceeds($expected, $actual): void
     {
         $this->assertTrue(
-          $this->comparator->accepts($expected, $actual)
+            $this->comparator->accepts($expected, $actual)
         );
     }
 
-    /**
-     * @dataProvider acceptsFailsProvider
-     */
+    #[DataProvider('acceptsFailsProvider')]
     public function testAcceptsFails($expected, $actual): void
     {
         $this->assertFalse(
-          $this->comparator->accepts($expected, $actual)
+            $this->comparator->accepts($expected, $actual)
         );
     }
 
-    /**
-     * @dataProvider assertEqualsSucceedsProvider
-     */
+    #[DataProvider('assertEqualsSucceedsProvider')]
     public function testAssertEqualsSucceeds($expected, $actual): void
     {
         $exception = null;
@@ -123,9 +117,7 @@ final class ExceptionComparatorTest extends TestCase
         $this->assertNull($exception, 'Unexpected ComparisonFailure');
     }
 
-    /**
-     * @dataProvider assertEqualsFailsProvider
-     */
+    #[DataProvider('assertEqualsFailsProvider')]
     public function testAssertEqualsFails($expected, $actual, $message): void
     {
         $this->expectException(ComparisonFailure::class);

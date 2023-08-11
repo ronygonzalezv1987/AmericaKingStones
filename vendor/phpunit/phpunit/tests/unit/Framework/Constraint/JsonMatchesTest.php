@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -9,86 +9,245 @@
  */
 namespace PHPUnit\Framework\Constraint;
 
+use function json_encode;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\ExpectationFailedException;
-use PHPUnit\Util\Json;
+use PHPUnit\Framework\TestCase;
 
-class JsonMatchesTest extends ConstraintTestCase
+#[CoversClass(JsonMatches::class)]
+#[CoversClass(Constraint::class)]
+#[Small]
+final class JsonMatchesTest extends TestCase
 {
-    public static function evaluateDataprovider(): array
+    public static function provider(): array
     {
         return [
-            'valid JSON'                              => [true, \json_encode(['Mascott'                           => 'Tux']), \json_encode(['Mascott'                           => 'Tux'])],
-            'error syntax'                            => [false, '{"Mascott"::}', \json_encode(['Mascott'         => 'Tux'])],
-            'error UTF-8'                             => [false, \json_encode('\xB1\x31'), \json_encode(['Mascott' => 'Tux'])],
-            'invalid JSON in class instantiation'     => [false, \json_encode(['Mascott'                          => 'Tux']), '{"Mascott"::}'],
-            'string type not equals number'           => [false, '{"age": "5"}', '{"age": 5}'],
-            'string type not equals boolean'          => [false, '{"age": "true"}', '{"age": true}'],
-            'string type not equals null'             => [false, '{"age": "null"}', '{"age": null}'],
-            'object fields are unordered'             => [true, '{"first":1, "second":"2"}', '{"second":"2", "first":1}'],
-            'child object fields are unordered'       => [true, '{"Mascott": {"name":"Tux", "age":5}}', '{"Mascott": {"age":5, "name":"Tux"}}'],
-            'null field different from missing field' => [false, '{"present": true, "missing": null}', '{"present": true}'],
-            'array elements are ordered'              => [false, '["first", "second"]', '["second", "first"]'],
-            'single boolean valid json'               => [true, 'true', 'true'],
-            'single number valid json'                => [true, '5.3', '5.3'],
-            'single null valid json'                  => [true, 'null', 'null'],
-            'objects are not arrays'                  => [false, '{}', '[]'],
+            'valid JSON' => [
+                true,
+                '',
+                '',
+                json_encode(['Mascott' => 'Tux']),
+                json_encode(['Mascott' => 'Tux']),
+            ],
+
+            'object fields are unordered' => [
+                true,
+                '',
+                '',
+                '{"second":"2", "first":1}',
+                '{"first":1, "second":"2"}',
+            ],
+
+            'child object fields are unordered' => [
+                true,
+                '',
+                '',
+                '{"Mascott": {"age":5, "name":"Tux"}}',
+                '{"Mascott": {"name":"Tux", "age":5}}',
+            ],
+
+            'single boolean valid json' => [
+                true,
+                '',
+                '',
+                'true',
+                'true',
+            ],
+
+            'single number valid json' => [
+                true,
+                '',
+                '',
+                '5.3',
+                '5.3',
+            ],
+
+            'single null valid json' => [
+                true,
+                '',
+                '',
+                'null',
+                'null',
+            ],
+
+            'invalid JSON in class instantiation' => [
+                false,
+                'Failed asserting that \'{"Mascott":"Tux"}\' matches JSON string "{"Mascott"::}".',
+                '',
+                '{"Mascott"::}',
+                json_encode(['Mascott' => 'Tux']),
+            ],
+
+            'error syntax' => [
+                false,
+                'Failed asserting that \'{"Mascott"::}\' matches JSON string "{"Mascott":"Tux"}".',
+                '',
+                json_encode(['Mascott' => 'Tux']),
+                '{"Mascott"::}',
+            ],
+
+            'error UTF-8' => [
+                false,
+                'Failed asserting that \'' . json_encode('\xB1\x31') . '\' matches JSON string "{"Mascott":"Tux"}".',
+                <<<'EOT'
+Failed asserting that two json values are equal.
+--- Expected
++++ Actual
+@@ @@
+-{
+-    "Mascott": "Tux"
+-}
++"\\xB1\\x31"
+
+EOT,
+                json_encode(['Mascott' => 'Tux']),
+                json_encode('\xB1\x31'),
+            ],
+
+            'string type not equals number' => [
+                false,
+                'Failed asserting that \'{"age": "5"}\' matches JSON string "{"age": 5}".',
+                <<<'EOT'
+Failed asserting that two json values are equal.
+--- Expected
++++ Actual
+@@ @@
+ {
+-    "age": 5
++    "age": "5"
+ }
+
+EOT,
+                '{"age": 5}',
+                '{"age": "5"}',
+            ],
+
+            'string type not equals boolean' => [
+                false,
+                'Failed asserting that \'{"age": "true"}\' matches JSON string "{"age": true}".',
+                <<<'EOT'
+Failed asserting that two json values are equal.
+--- Expected
++++ Actual
+@@ @@
+ {
+-    "age": true
++    "age": "true"
+ }
+
+EOT,
+                '{"age": true}',
+                '{"age": "true"}',
+            ],
+
+            'string type not equals null' => [
+                false,
+                'Failed asserting that \'{"age": "null"}\' matches JSON string "{"age": null}".',
+                <<<'EOT'
+Failed asserting that two json values are equal.
+--- Expected
++++ Actual
+@@ @@
+ {
+-    "age": null
++    "age": "null"
+ }
+
+EOT,
+                '{"age": null}',
+                '{"age": "null"}',
+            ],
+
+            'null field different from missing field' => [
+                false,
+                'Failed asserting that \'{"present": true, "missing": null}\' matches JSON string "{"present": true}".',
+                <<<'EOT'
+Failed asserting that two json values are equal.
+--- Expected
++++ Actual
+@@ @@
+ {
++    "missing": null,
+     "present": true
+ }
+
+EOT,
+                '{"present": true}',
+                '{"present": true, "missing": null}',
+            ],
+
+            'array elements are ordered' => [
+                false,
+                'Failed asserting that \'["first", "second"]\' matches JSON string "["second", "first"]".',
+                <<<'EOT'
+Failed asserting that two json values are equal.
+--- Expected
++++ Actual
+@@ @@
+ [
+-    "second",
+-    "first"
++    "first",
++    "second"
+ ]
+
+EOT,
+                '["second", "first"]',
+                '["first", "second"]',
+            ],
+
+            'objects are not arrays' => [
+                false,
+                'Failed asserting that \'{}\' matches JSON string "[]".',
+                <<<'EOT'
+Failed asserting that two json values are equal.
+--- Expected
++++ Actual
+@@ @@
+-[]
++{}
+
+EOT,
+                '[]',
+                '{}',
+            ],
         ];
     }
 
-    public static function evaluateThrowsExpectationFailedExceptionWhenJsonIsValidButDoesNotMatchDataprovider(): array
+    #[DataProvider('provider')]
+    public function testCanBeEvaluated(bool $result, string $failureDescription, string $comparisonFailureAsString, mixed $expected, mixed $actual): void
     {
-        return [
-            'error UTF-8'                             => [\json_encode('\xB1\x31'), \json_encode(['Mascott' => 'Tux'])],
-            'string type not equals number'           => ['{"age": "5"}', '{"age": 5}'],
-            'string type not equals boolean'          => ['{"age": "true"}', '{"age": true}'],
-            'string type not equals null'             => ['{"age": "null"}', '{"age": null}'],
-            'null field different from missing field' => ['{"present": true, "missing": null}', '{"present": true}'],
-            'array elements are ordered'              => ['["first", "second"]', '["second", "first"]'],
-        ];
-    }
+        $constraint = new JsonMatches($expected);
 
-    /**
-     * @dataProvider evaluateDataprovider
-     *
-     * @throws ExpectationFailedException
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function testEvaluate($expected, $jsonOther, $jsonValue): void
-    {
-        $constraint = new JsonMatches($jsonValue);
+        $this->assertSame($result, $constraint->evaluate($actual, returnResult: true));
 
-        $this->assertEquals($expected, $constraint->evaluate($jsonOther, '', true));
-    }
-
-    /**
-     * @dataProvider evaluateThrowsExpectationFailedExceptionWhenJsonIsValidButDoesNotMatchDataprovider
-     *
-     * @throws ExpectationFailedException
-     * @throws \PHPUnit\Framework\AssertionFailedError
-     * @throws \PHPUnit\Framework\Exception
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function testEvaluateThrowsExpectationFailedExceptionWhenJsonIsValidButDoesNotMatch($jsonOther, $jsonValue): void
-    {
-        $constraint = new JsonMatches($jsonValue);
+        if ($result) {
+            return;
+        }
 
         try {
-            $constraint->evaluate($jsonOther, '', false);
-            $this->fail(\sprintf('Expected %s to be thrown.', ExpectationFailedException::class));
-        } catch (ExpectationFailedException $expectedException) {
-            $comparisonFailure = $expectedException->getComparisonFailure();
-            $this->assertNotNull($comparisonFailure);
-            $this->assertSame(Json::prettify($jsonOther), $comparisonFailure->getActualAsString());
-            $this->assertSame(Json::prettify($jsonValue), $comparisonFailure->getExpectedAsString());
-            $this->assertSame('Failed asserting that two json values are equal.', $comparisonFailure->getMessage());
+            $constraint->evaluate($actual);
+        } catch (ExpectationFailedException $e) {
+            $this->assertSame($failureDescription, $e->getMessage());
+            $this->assertSame($comparisonFailureAsString, $e->getComparisonFailure() ? $e->getComparisonFailure()->toString() : '');
+
+            return;
         }
+
+        $this->fail();
     }
 
-    public function testToString(): void
+    public function testCanBeRepresentedAsString(): void
     {
-        $jsonValue  = \json_encode(['Mascott' => 'Tux']);
-        $constraint = new JsonMatches($jsonValue);
+        $constraint = new JsonMatches(json_encode(['key' => 'value']));
 
-        $this->assertEquals('matches JSON string "' . $jsonValue . '"', $constraint->toString());
+        $this->assertSame('matches JSON string "{"key":"value"}"', $constraint->toString());
+    }
+
+    public function testIsCountable(): void
+    {
+        $this->assertCount(1, (new JsonMatches(json_encode(['key' => 'value']))));
     }
 }

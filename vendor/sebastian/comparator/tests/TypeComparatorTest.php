@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of sebastian/comparator.
  *
@@ -9,16 +9,16 @@
  */
 namespace SebastianBergmann\Comparator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-/**
- * @covers \SebastianBergmann\Comparator\TypeComparator<extended>
- *
- * @uses \SebastianBergmann\Comparator\Comparator
- * @uses \SebastianBergmann\Comparator\Factory
- * @uses \SebastianBergmann\Comparator\ComparisonFailure
- */
+#[CoversClass(TypeComparator::class)]
+#[UsesClass(Comparator::class)]
+#[UsesClass(ComparisonFailure::class)]
+#[UsesClass(Factory::class)]
 final class TypeComparatorTest extends TestCase
 {
     /**
@@ -26,23 +26,18 @@ final class TypeComparatorTest extends TestCase
      */
     private $comparator;
 
-    protected function setUp(): void
-    {
-        $this->comparator = new TypeComparator;
-    }
-
-    public function acceptsSucceedsProvider()
+    public static function acceptsSucceedsProvider()
     {
         return [
             [true, 1],
             [false, [1]],
             [null, new stdClass],
             [1.0, 5],
-            ['', '']
+            ['', ''],
         ];
     }
 
-    public function assertEqualsSucceedsProvider()
+    public static function assertEqualsSucceedsProvider()
     {
         return [
             [true, true],
@@ -54,34 +49,35 @@ final class TypeComparatorTest extends TestCase
             [1.0, 2.0],
             ['hello', 'world'],
             ['', ''],
-            [[], [1, 2, 3]]
+            [[], [1, 2, 3]],
         ];
     }
 
-    public function assertEqualsFailsProvider()
+    public static function assertEqualsFailsProvider()
     {
         return [
             [true, null],
             [null, false],
             [1.0, 0],
             [new stdClass, []],
-            ['1', 1]
+            ['1', 1],
         ];
     }
 
-    /**
-     * @dataProvider acceptsSucceedsProvider
-     */
+    protected function setUp(): void
+    {
+        $this->comparator = new TypeComparator;
+    }
+
+    #[DataProvider('acceptsSucceedsProvider')]
     public function testAcceptsSucceeds($expected, $actual): void
     {
         $this->assertTrue(
-          $this->comparator->accepts($expected, $actual)
+            $this->comparator->accepts($expected, $actual)
         );
     }
 
-    /**
-     * @dataProvider assertEqualsSucceedsProvider
-     */
+    #[DataProvider('assertEqualsSucceedsProvider')]
     public function testAssertEqualsSucceeds($expected, $actual): void
     {
         $exception = null;
@@ -94,9 +90,7 @@ final class TypeComparatorTest extends TestCase
         $this->assertNull($exception, 'Unexpected ComparisonFailure');
     }
 
-    /**
-     * @dataProvider assertEqualsFailsProvider
-     */
+    #[DataProvider('assertEqualsFailsProvider')]
     public function testAssertEqualsFails($expected, $actual): void
     {
         $this->expectException(ComparisonFailure::class);

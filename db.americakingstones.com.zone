@@ -10,5 +10,5 @@ $TTL                  86400   ; time-to-live - 24 hours could have been written 
                                                     604800 )              ; Default TTL
 ;                     
 @                      IN            NS           americakingstones.com.   ;serve
-@                      IN            A            18.189.79.12             ;172.24.76.97  loop-back address
+@                      IN            A            3.230.218.113             ;172.24.76.97  loop-back address
 www                    IN            CNAME        americakingstones.com.

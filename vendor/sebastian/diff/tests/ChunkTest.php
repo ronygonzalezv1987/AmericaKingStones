@@ -7,20 +7,17 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\Diff;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers SebastianBergmann\Diff\Chunk
- */
+#[CoversClass(Chunk::class)]
+#[UsesClass(Line::class)]
 final class ChunkTest extends TestCase
 {
-    /**
-     * @var Chunk
-     */
-    private $chunk;
+    private Chunk $chunk;
 
     protected function setUp(): void
     {

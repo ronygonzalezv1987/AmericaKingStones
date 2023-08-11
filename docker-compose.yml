@@ -14,7 +14,7 @@ services:
       SESSION_DRIVE: redis
       REDIS_HOST: redis
     volumes:
-      - ./:/var/www
+#      - ./:/var/www
       - ./config/php/local.ini:/usr/local/etc.php/conf./local.ini
 
   nginx-proxy:
@@ -22,57 +22,11 @@ services:
     container_name: nginx-proxy
     restart: always
     ports:
-      - "80:80"
+      - "81:80"
       - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - certs:/etc/nginx/certs:ro
-      - vhost.d:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html:ro #:ro
-      # - acme:/etc/acme.sh
-    labels:
-      # - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
-      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
-    privileged: true
-
-  # dockergen:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile_Gen
-  #   container_name: dockergen
-  #   volumes:
-  #     - conf:/etc/nginx/conf.d
-  #     - vhost.d:/etc/nginx/vhost.d
-  #     - html:/usr/share/nginx/html
-  #     - certs:/etc/nginx/certs
-  #     - /var/run/docker.sock:/tmp/docker.sock:ro
-  #   labels:
-  #     - "com.github.jrcs.letsencrypt_nginx_proxy_companion.docker_gen"
-  #   depends_on:
-  #     - nginx-proxy
-  #   restart: always
-
-  letsencrypt:
-    image: jrcs/letsencrypt-nginx-proxy-companion:acmesh
-    #image: jrcs/letsencrypt-nginx-proxy-companion:stable
-
-    restart: always
-    container_name: letsencrypt
-    volumes:
-      - certs:/etc/nginx/certs #:rw
-      - vhost.d:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      - NGINX_PROXY_CONTAINER=nginx-proxy
-      # - NGINX_DOCKER_GEN_CONTAINER= dockergen
-    depends_on:
-      - nginx-proxy
-      #  - dockergen
-      # - aks_dns
-    volumes_from:
-      - nginx-proxy #:rw
-
   www:
     build:
       context: .
@@ -86,19 +40,19 @@ services:
     volumes:
       - ./:/usr/share/nginx/html:ro
       - ./config/nginx/conf.d:/etc/nginx/conf.d
-      - certs:/etc/nginx/certs
+      - ./etc/letsencrypt/live:/etc/nginx/ssl
     environment:
       - VIRTUAL_HOST=americakingstones.com,www.americakingstones.com
       - LETSENCRYPT_HOST=americakingstones.com,www.americakingstones.com
       - LETSENCRYPT_EMAIL=ronygonzalezv1987@gmail.com
       - LETSENCRYPT_TEST=true
-      - HTTPS_METHOD=noredirect
+#      - HTTPS_METHOD=noredirect
 
     depends_on:
       - app
       - nginx-proxy
-      - letsencrypt
-      - aks_dns
+ #     - letsencrypt
+ #     - aks_dns
 
   mysql:
     image: mysql:5.7
@@ -116,14 +70,14 @@ services:
     image: redis:latest
     container_name: redis
 
-  aks_dns:
-    build:
-      context: .
-      dockerfile: Dockerfile_Dns
-    image: aks_dns
-    container_name: aks_dns
-    restart: unless-stopped
-    privileged: true
+#  aks_dns:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile_Dns
+#    image: aks_dns
+#    container_name: aks_dns
+#    restart: unless-stopped
+#    privileged: true
 
 volumes:
   vhost.d:

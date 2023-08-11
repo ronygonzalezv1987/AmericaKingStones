@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -7,7 +7,11 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-class DataProviderDependencyTest extends PHPUnit\Framework\TestCase
+namespace PHPUnit\TestFixture;
+
+use PHPUnit\Framework\TestCase;
+
+class DataProviderDependencyTest extends TestCase
 {
     public function testReference(): void
     {
@@ -17,7 +21,9 @@ class DataProviderDependencyTest extends PHPUnit\Framework\TestCase
 
     /**
      * @see https://github.com/sebastianbergmann/phpunit/issues/1896
+     *
      * @depends testReference
+     *
      * @dataProvider provider
      */
     public function testDependency($param): void

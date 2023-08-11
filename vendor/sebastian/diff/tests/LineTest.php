@@ -7,20 +7,15 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\Diff;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers SebastianBergmann\Diff\Line
- */
+#[CoversClass(Line::class)]
 final class LineTest extends TestCase
 {
-    /**
-     * @var Line
-     */
-    private $line;
+    private Line $line;
 
     protected function setUp(): void
     {

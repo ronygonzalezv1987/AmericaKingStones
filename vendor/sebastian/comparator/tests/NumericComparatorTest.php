@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of sebastian/comparator.
  *
@@ -9,15 +9,17 @@
  */
 namespace SebastianBergmann\Comparator;
 
+use const INF;
+use function acos;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \SebastianBergmann\Comparator\NumericComparator<extended>
- *
- * @uses \SebastianBergmann\Comparator\Comparator
- * @uses \SebastianBergmann\Comparator\Factory
- * @uses \SebastianBergmann\Comparator\ComparisonFailure
- */
+#[CoversClass(NumericComparator::class)]
+#[UsesClass(Comparator::class)]
+#[UsesClass(ComparisonFailure::class)]
+#[UsesClass(Factory::class)]
 final class NumericComparatorTest extends TestCase
 {
     /**
@@ -25,34 +27,41 @@ final class NumericComparatorTest extends TestCase
      */
     private $comparator;
 
-    protected function setUp(): void
-    {
-        $this->comparator = new NumericComparator;
-    }
-
-    public function acceptsSucceedsProvider()
+    public static function acceptsSucceedsProvider()
     {
         return [
             [5, 10],
             [8, '0'],
             ['10', 0],
             [0x74c3b00c, 42],
-            [0755, 0777]
+            [0755, 0777],
+            [8, 5.0],
+            [5.0, 8],
+            [5, 5],
+            ['4.5', 5],
+            [0x539, 02471],
+            [0, 5.0],
+            [5.0, 0],
+            ['5', 4.5],
+            [1.2e3, 7E-10],
+            [3, acos(8)],
+            [acos(8), 3],
+            [acos(8), acos(8)],
         ];
     }
 
-    public function acceptsFailsProvider()
+    public static function acceptsFailsProvider()
     {
         return [
             ['5', '10'],
-            [8, 5.0],
-            [5.0, 8],
             [10, null],
-            [false, 12]
+            [false, 12],
+            [5.0, false],
+            [null, 5.0],
         ];
     }
 
-    public function assertEqualsSucceedsProvider()
+    public static function assertEqualsSucceedsProvider()
     {
         return [
             [1337, 1337],
@@ -61,10 +70,27 @@ final class NumericComparatorTest extends TestCase
             [02471, 1337],
             [1337, 1338, 1],
             ['1337', 1340, 5],
+            [INF, INF],
+            [2.3, 2.3],
+            ['2.3', 2.3],
+            [5.0, 5],
+            [5, 5.0],
+            [5.0, '5'],
+            [1.2e3, 1200],
+            [2.3, 2.5, 0.5],
+            [3, 3.05, 0.05],
+            [1.2e3, 1201, 1],
+            [1 / 3, '0.3333333333333333'],
+            [1 - 2 / 3, '0.33333333333333337'],
+            [1 / 3, 1 - 2 / 3, 0.0000000001],
+            [5.5E+123, '5.5E+123'],
+            [5.5E-123, '5.5E-123'],
+            [5.5E+123, '5.6E+123', 0.2E+123],
+            [5.5E-123, '5.6E-123', 0.2E-123],
         ];
     }
 
-    public function assertEqualsFailsProvider()
+    public static function assertEqualsFailsProvider()
     {
         return [
             [1337, 1338],
@@ -72,32 +98,46 @@ final class NumericComparatorTest extends TestCase
             [0x539, 1338],
             [1337, 1339, 1],
             ['1337', 1340, 2],
+            [2.3, 4.2],
+            ['2.3', 4.2],
+            [5.0, '4'],
+            [5.0, 6],
+            [1.2e3, 1201],
+            [2.3, 2.5, 0.2],
+            [3, 3.05, 0.04],
+            [3, acos(8)],
+            [acos(8), 3],
+            [acos(8), acos(8)],
+            [1 / 3, 1 - 2 / 3],
+            [5.5E+123, '5.7E+123'],
+            [5.5E-123, '5.7E-123'],
+            [5.5E+123, '5.7E+123', 0.1E+123],
+            [5.5E-123, '5.7E-123', 0.1E-123],
         ];
     }
 
-    /**
-     * @dataProvider acceptsSucceedsProvider
-     */
+    protected function setUp(): void
+    {
+        $this->comparator = new NumericComparator;
+    }
+
+    #[DataProvider('acceptsSucceedsProvider')]
     public function testAcceptsSucceeds($expected, $actual): void
     {
         $this->assertTrue(
-          $this->comparator->accepts($expected, $actual)
+            $this->comparator->accepts($expected, $actual)
         );
     }
 
-    /**
-     * @dataProvider acceptsFailsProvider
-     */
+    #[DataProvider('acceptsFailsProvider')]
     public function testAcceptsFails($expected, $actual): void
     {
         $this->assertFalse(
-          $this->comparator->accepts($expected, $actual)
+            $this->comparator->accepts($expected, $actual)
         );
     }
 
-    /**
-     * @dataProvider assertEqualsSucceedsProvider
-     */
+    #[DataProvider('assertEqualsSucceedsProvider')]
     public function testAssertEqualsSucceeds($expected, $actual, $delta = 0.0): void
     {
         $exception = null;
@@ -110,9 +150,7 @@ final class NumericComparatorTest extends TestCase
         $this->assertNull($exception, 'Unexpected ComparisonFailure');
     }
 
-    /**
-     * @dataProvider assertEqualsFailsProvider
-     */
+    #[DataProvider('assertEqualsFailsProvider')]
     public function testAssertEqualsFails($expected, $actual, $delta = 0.0): void
     {
         $this->expectException(ComparisonFailure::class);

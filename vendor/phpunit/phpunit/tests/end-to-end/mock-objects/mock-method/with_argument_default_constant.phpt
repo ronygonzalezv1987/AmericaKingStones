@@ -12,7 +12,7 @@ class Foo
     private function bar($a = GLOBAL_CONSTANT, $b = self::CLASS_CONSTANT_PUBLIC, $c = self::CLASS_CONSTANT_PROTECTED, $d = self::CLASS_CONSTANT_PRIVATE){}
 }
 
-require __DIR__ . '/../../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../bootstrap.php';
 
 $class = new ReflectionClass('Foo');
 $mockMethod = \PHPUnit\Framework\MockObject\MockMethod::fromReflection(
@@ -24,7 +24,6 @@ $mockMethod = \PHPUnit\Framework\MockObject\MockMethod::fromReflection(
 $code = $mockMethod->generateCode();
 
 print $code;
-?>
 --EXPECT--
 
 private function bar($a = 1, $b = 2, $c = 3, $d = 4)
@@ -40,8 +39,8 @@ private function bar($a = 1, $b = 2, $c = 3, $d = 4)
             }
         }
 
-        $__phpunit_result = $this->__phpunit_getInvocationMocker()->invoke(
-            new \PHPUnit\Framework\MockObject\Invocation\ObjectInvocation(
+        $__phpunit_result = $this->__phpunit_getInvocationHandler()->invoke(
+            new \PHPUnit\Framework\MockObject\Invocation(
                 'Foo', 'bar', $__phpunit_arguments, '', $this, false
             )
         );

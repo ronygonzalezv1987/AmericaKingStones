@@ -6,6 +6,9 @@ RUN apk update && apk add \
     openssl
 #COPY ./config/nginx/conf.d/app.conf /etc/nginx/conf.d/app.conf
 COPY . /var/www
+#chown -R www-data:www-data /etc/letsencrypt/
+#chmod -R 755 /etc/letsencrypt/
+
 #RUN chown -R 405 /etc/nginx/
 #RUN openssl genrsa -out /etc/nginx/certs/default.key 4096
 #RUN openssl rsa -in /etc/nginx/certs/default.key -pubout -out /etc/nginx/certs/default_public.key

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of sebastian/comparator.
  *
@@ -16,7 +16,6 @@ class Author
 {
     // the order of properties is important for testing the cycle!
     public $books = [];
-
     private $name = '';
 
     public function __construct($name)
