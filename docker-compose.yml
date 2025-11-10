@@ -1,0 +1,112 @@
+version: "3.1"
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: aks-app
+        container_name: app
+        restart: unless-stopped
+        environment:
+            DB_HOST: mysql
+            DB_PASSWORD: ro30182
+            SESSION_DRIVE: redis
+            REDIS_HOST: redis
+        volumes:
+#            - ./:/var/www
+            - ./config/php/local.ini:/usr/local/etc.php/conf./local.ini
+
+    nginx-proxy:
+        image: jwilder/nginx-proxy
+        container_name: nginx-proxy
+        restart: always
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock:ro
+            - ./certs:/etc/nginx/certs:ro
+            - /etc/nginx/vhost.depends
+            - /user/share/nginx/html
+    #      - html:/usr/share/nginx/html:ro #:ro
+        labels:
+            - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+    
+    letsencrypt:
+       image: jrcs/letsencrypt-nginx-proxy-companion
+       restart: always
+       container_name: letsencrypt
+       volumes:
+         - ./certs:/etc/nginx/certs:rw
+    #     - vhost.d:/etc/nginx/vhost.d
+    #     - html:/usr/share/nginx/html
+         - /var/run/docker.sock:/var/run/docker.sock:ro
+    #   environment:
+    #     - NGINX_PROXY_CONTAINER=nginx-proxy
+    #   depends_on:
+    #     - nginx-proxy
+       volumes_from:
+         - nginx-proxy :rw
+
+    www:
+        build:
+            context: .
+            dockerfile: Dockerfile_Nginx
+        image: aks-www
+        container_name: www
+        restart: unless-stopped
+        expose:
+            - "80"
+        privileged: true
+        volumes:
+            - ./:/usr/share/nginx/html:ro
+            - ./config/nginx/conf.d:/etc/nginx/conf.d 
+#            - certs:/etc/nginx/certs
+        environment:
+            - VIRTUAL_HOST=americakingstones.com,www.americakingstones.com
+            - LETSENCRYPT_HOST=americakingstones.com,www.americakingstones.com
+            - LETSENCRYPT_EMAIL=ronygonzalezv1987@gmail.com
+            #   - LETSENCRYPT_TEST=true
+            #- HTTPS_METHOD=noredirect
+            #- VIRTUAL_PROTO=http
+
+        depends_on:
+            - app
+    #     - nginx-proxy
+    #     - letsencrypt
+    #     - aks_dns
+
+    mysql:
+        image: mysql:5.7
+        container_name: mysql
+        restart: always
+        ports:
+            - 3306:3306
+        volumes:
+            - dbdata:/var/lib/mysql
+        environment:
+            MYSQL_USER: rgonzalezv1987
+            MYSQL_ROOT_PASSWORD: ro30182
+            MYSQL_DATABASE: AKS_DB #Rony
+    redis:
+        image: redis:latest
+        container_name: redis
+
+#  aks_dns:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile_Dns
+#    image: aks_dns
+#    container_name: aks_dns
+#    restart: unless-stopped
+#    privileged: true
+
+volumes:
+    vhost.d:
+    html:
+    certs:
+    conf:
+    #acme:
+    dbdata:
+        driver: local
