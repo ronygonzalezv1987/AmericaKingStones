@@ -1,4 +1,4 @@
-FROM php:8.1.2-fpm-alpine
+FROM php:8.3.6-fpm-alpine
 WORKDIR /var/www
 #RUN apk update && apk add \ install -y php8.1-cli php8.1-common php8.1-mysql php8.1-zip php8.1-gd php8.1-mbstring php8.1-curl php8.1-xml php8.1-bcmath
 
@@ -21,7 +21,7 @@ RUN apk update && apk add \
 #&& docker-php-ext-enable redis && apk del autoconf
 
 #RUN composer install 
-COPY --from=composer:2.2.6 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.7.1 /usr/bin/composer /usr/bin/composer
 COPY ./composer.* ./
 
 RUN composer install \

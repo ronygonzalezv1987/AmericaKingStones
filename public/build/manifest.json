@@ -1,0 +1,38 @@
+{
+  "resources/js/backend/app.js": {
+    "file": "assets/app-1c65f328.js",
+    "isEntry": true,
+    "src": "resources/js/backend/app.js"
+  },
+  "resources/js/frontend/app.js": {
+    "file": "assets/app-f59ce96a.js",
+    "imports": [
+      "resources/js/backend/app.js"
+    ],
+    "isEntry": true,
+    "src": "resources/js/frontend/app.js"
+  },
+  "resources/js/global/app.js": {
+    "file": "assets/app-12873649.js",
+    "imports": [
+      "resources/js/backend/app.js"
+    ],
+    "isEntry": true,
+    "src": "resources/js/global/app.js"
+  },
+  "resources/scss/backend/app.scss": {
+    "file": "assets/app-ff43067b.css",
+    "isEntry": true,
+    "src": "resources/scss/global/app.scss"
+  },
+  "resources/scss/frontend/app.scss": {
+    "file": "assets/app-d1c7825e.css",
+    "isEntry": true,
+    "src": "resources/scss/frontend/app.scss"
+  },
+  "resources/scss/global/app.scss": {
+    "file": "assets/app-ff43067b.css",
+    "isEntry": true,
+    "src": "resources/scss/global/app.scss"
+  }
+}

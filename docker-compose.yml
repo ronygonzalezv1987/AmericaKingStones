@@ -15,8 +15,7 @@ services:
             REDIS_HOST: redis
         volumes:
 #            - ./:/var/www
-            - ./config/php/local.ini:/usr/local/etc.php/conf./local.ini
-
+         - ./config/php/local.ini:/usr/local/etc.php/conf./local.ini
     nginx-proxy:
         image: jwilder/nginx-proxy
         container_name: nginx-proxy
@@ -27,27 +26,19 @@ services:
         volumes:
             - /var/run/docker.sock:/tmp/docker.sock:ro
             - ./certs:/etc/nginx/certs:ro
-            - /etc/nginx/vhost.depends
-            - /user/share/nginx/html
-    #      - html:/usr/share/nginx/html:ro #:ro
+            - /etc/nginx/vhost.d
+            - /usr/share/nginx/html
         labels:
-            - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
-    
+        - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
     letsencrypt:
        image: jrcs/letsencrypt-nginx-proxy-companion
        restart: always
        container_name: letsencrypt
        volumes:
          - ./certs:/etc/nginx/certs:rw
-    #     - vhost.d:/etc/nginx/vhost.d
-    #     - html:/usr/share/nginx/html
          - /var/run/docker.sock:/var/run/docker.sock:ro
-    #   environment:
-    #     - NGINX_PROXY_CONTAINER=nginx-proxy
-    #   depends_on:
-    #     - nginx-proxy
        volumes_from:
-         - nginx-proxy :rw
+         - nginx-proxy:rw
 
     www:
         build:

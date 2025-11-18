@@ -38,19 +38,19 @@
 
 <body>
     <div id="app">
-        <section class="welcome" style="background-image: url('{{ asset('images/background-welcome.jpg')}}');">
+        <section class="welcome" style="background-image: url('{{ asset('images/background-welcome.jpg')}}');  ">
          <header id="header" role="banner">  
             @include('frontend.layouts.nav')
          </header>
        
-         <div class="text-welcome text-center">
-            <p class="h5">MARBLE,GRANITE & QUARTZ COMPANY </p>
-            <h1 class="display-4 mb-3">BUILD YOUR NEXT KITCHEN WITH US</h1>
+            <div class="text-welcome text-center" style="margin: 5.5rem">
+                <p class="h5" style="color: whitesmoke;">MARBLE,GRANITE & QUARTZ COMPANY </p>
+                 <h1 class="display-4 mb-3" style="color: whitesmoke;">BUILD YOUR NEXT KITCHEN WITH US</h1>
            
-            <a href="#" class="btn btn-primary btn-lg">CREATE YOUR PROYECT</a>
+                 <a href="#" class="btn btn-primary btn-lg">CREATE YOUR PROYECT</a>
 
-         </div>
-
+             </div>
+        
         </section>    
 
             <div class="container-fluid full-height main-content ">
